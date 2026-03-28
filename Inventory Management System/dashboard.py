@@ -10,6 +10,7 @@ from supplier import supplierClass
 from category import categoryClass
 from product import productClass
 from sales import salesClass
+from login import LoginWindow
 
 # ------------------ BASE PATH SETUP ------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,11 +21,13 @@ os.makedirs(BILL_DIR, exist_ok=True)
 # ---------------------------------------------------
 
 class IMS:
-    def __init__(self, root):
+    def __init__(self, root, user_role = None):
         self.root = root
         self.root.geometry("1350x700+110+80")
         self.root.resizable(False, False)
         self.root.config(bg="white")
+        self.current_user_role = user_role
+        
 
         # ------------- title --------------
         self.icon_title = PhotoImage(file=os.path.join(IMAGE_DIR, "logo1.png"))
@@ -40,12 +43,14 @@ class IMS:
             padx=20
         ).place(x=0, y=0, relwidth=1, height=70)
 
-        # ------------ logout button -----------
-        btn_logout = Button(
-            self.root, text="Logout",
+        # ------------ login/logout button -----------
+        self.btn_login_logout = Button(
+            self.root,
             font=("times new roman", 15, "bold"),
             bg="yellow", cursor="hand2"
-        ).place(x=1150, y=10, height=50, width=150)
+        )
+        self.btn_login_logout.place(x=1150, y=10, height=50, width=150)
+        self.update_login_logout_button()
 
         # ------------ clock -----------------
         self.lbl_clock = Label(
@@ -75,55 +80,66 @@ class IMS:
 
         self.icon_side = PhotoImage(file=os.path.join(IMAGE_DIR, "side.png"))
 
-        btn_employee = Button(
+
+        self.btn_employee = Button(
             LeftMenu, text="Employee", command=self.employee,
             image=self.icon_side, compound=LEFT,
             padx=5, anchor="w",
             font=("times new roman", 20, "bold"),
             bg="white", bd=3, cursor="hand2"
-        ).pack(side=TOP, fill=X)
+        )
+        self.btn_employee.pack(side=TOP, fill=X)
 
-        btn_supplier = Button(
+        self.btn_supplier = Button(
             LeftMenu, text="Supplier", command=self.supplier,
             image=self.icon_side, compound=LEFT,
             padx=5, anchor="w",
             font=("times new roman", 20, "bold"),
             bg="white", bd=3, cursor="hand2"
-        ).pack(side=TOP, fill=X)
+        )
+        self.btn_supplier.pack(side=TOP, fill=X)
 
-        btn_category = Button(
+        self.btn_category = Button(
             LeftMenu, text="Category", command=self.category,
             image=self.icon_side, compound=LEFT,
             padx=5, anchor="w",
             font=("times new roman", 20, "bold"),
             bg="white", bd=3, cursor="hand2"
-        ).pack(side=TOP, fill=X)
+        )
+        self.btn_category.pack(side=TOP, fill=X)
 
-        btn_product = Button(
+        self.btn_product = Button(
             LeftMenu, text="Products", command=self.product,
             image=self.icon_side, compound=LEFT,
             padx=5, anchor="w",
             font=("times new roman", 20, "bold"),
             bg="white", bd=3, cursor="hand2"
-        ).pack(side=TOP, fill=X)
+        )
+        self.btn_product.pack(side=TOP, fill=X)
 
-        btn_sales = Button(
+        self.btn_sales = Button(
             LeftMenu, text="Sales", command=self.sales,
             image=self.icon_side, compound=LEFT,
             padx=5, anchor="w",
             font=("times new roman", 20, "bold"),
             bg="white", bd=3, cursor="hand2"
-        ).pack(side=TOP, fill=X)
+        )
+        self.btn_sales.pack(side=TOP, fill=X)
 
-        btn_exit = Button(
+        self.btn_exit = Button(
             LeftMenu, text="Exit",
             image=self.icon_side, compound=LEFT,
             padx=5, anchor="w",
             font=("times new roman", 20, "bold"),
             bg="white", bd=3, cursor="hand2",
             command=self.root.destroy
-        ).pack(side=TOP, fill=X)
+        )
+        self.btn_exit.pack(side=TOP, fill=X)
 
+        # ------------------- user level check ------------------
+        self.update_user_permissions()
+        
+    
         # ----------- content ----------------
         self.lbl_employee = Label(
             self.root, text="Total Employee\n{ 0 }",
@@ -239,8 +255,49 @@ class IMS:
         except Exception as ex:
             messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
 
+    def update_user_permissions(self):
+            # Enable all by default
+            self.btn_employee.config(state=NORMAL)
+            self.btn_supplier.config(state=NORMAL)
+            self.btn_category.config(state=NORMAL)
+            self.btn_product.config(state=NORMAL)
+            self.btn_sales.config(state=NORMAL)
+            # Restrict if not admin
+            if self.current_user_role != 'Admin':
+                self.btn_supplier.config(state=DISABLED)
+                self.btn_category.config(state=DISABLED)
+                self.btn_product.config(state=DISABLED)
+                self.btn_sales.config(state=DISABLED)
 
+    def update_login_logout_button(self):
+        if self.current_user_role:
+            self.btn_login_logout.config(text="Logout", command=self.logout)
+        else:
+            self.btn_login_logout.config(text="Login", command=self.login)
+
+    def logout(self):
+        self.current_user_role = None
+        self.update_login_logout_button()
+        self.update_user_permissions()
+        login_win = Toplevel(self.root)
+        login = LoginWindow(login_win, parent=self.root)
+        login_win.grab_set()
+        self.root.wait_window(login_win)
+        if login.user_role:
+            self.current_user_role = login.user_role
+            self.update_login_logout_button()
+            self.update_user_permissions()
+
+    def login(self):
+        login_win = Toplevel(self.root)
+        login = LoginWindow(login_win, parent=self.root)
+        login_win.grab_set()
+        self.root.wait_window(login_win)
+        if login.user_role:
+            self.current_user_role = login.user_role
+            self.update_login_logout_button()
+            self.update_user_permissions()
 if __name__ == "__main__":
     root = Tk()
-    obj = IMS(root)
+    app = IMS(root)
     root.mainloop()
