@@ -171,25 +171,38 @@ class IMS:
         self.update_content()
 
     # -------------- functions ----------------
+    def _close_current_dialog(self):
+        if hasattr(self, 'current_dialog') and self.current_dialog is not None:
+            try:
+                self.current_dialog.destroy()
+            except:
+                pass
+            self.current_dialog = None
+
     def employee(self):
-        self.new_win = Toplevel(self.root)
-        self.new_obj = employeeClass(self.new_win)
+        self._close_current_dialog()
+        self.current_dialog = Toplevel(self.root)
+        self.new_obj = employeeClass(self.current_dialog)
 
     def supplier(self):
-        self.new_win = Toplevel(self.root)
-        self.new_obj = supplierClass(self.new_win)
+        self._close_current_dialog()
+        self.current_dialog = Toplevel(self.root)
+        self.new_obj = supplierClass(self.current_dialog)
 
     def category(self):
-        self.new_win = Toplevel(self.root)
-        self.new_obj = categoryClass(self.new_win)
+        self._close_current_dialog()
+        self.current_dialog = Toplevel(self.root)
+        self.new_obj = categoryClass(self.current_dialog)
 
     def product(self):
-        self.new_win = Toplevel(self.root)
-        self.new_obj = productClass(self.new_win)
+        self._close_current_dialog()
+        self.current_dialog = Toplevel(self.root)
+        self.new_obj = productClass(self.current_dialog)
 
     def sales(self):
-        self.new_win = Toplevel(self.root)
-        self.new_obj = salesClass(self.new_win)
+        self._close_current_dialog()
+        self.current_dialog = Toplevel(self.root)
+        self.new_obj = salesClass(self.current_dialog)
 
     def update_content(self):
         con = sqlite3.connect(database=os.path.join(BASE_DIR, 'ims.db'))
