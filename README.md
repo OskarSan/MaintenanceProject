@@ -1,6 +1,6 @@
-Inventory Management System
+###Inventory Management System
 
-Inventory management tool designed to keep track of the state of an inventory, together with management of users and orders. 
+##Inventory management tool designed to keep track of the state of an inventory, together with management of users and orders. 
 
 Demo video: [https://youtu.be/bp1liEwQZr4](url)
 
